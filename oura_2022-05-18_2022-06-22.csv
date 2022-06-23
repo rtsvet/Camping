@@ -1,4 +1,4 @@
-,Camping,date,Average HRV,Deep Sleep Duration,Temperature Deviation,Respiratory Rate,Average Resting Heart Rate,Lowest Resting Heart Rate,REM Sleep Score,Total Sleep Duration,REM Sleep Duration,Light Sleep Duration,Resting Heart Rate Score
+Weekday,Camping,date,Average HRV,Deep Sleep Duration,Temperature Deviation,Respiratory Rate,Average Resting Heart Rate,Lowest Resting Heart Rate,REM Sleep Score,Total Sleep Duration,REM Sleep Duration,Light Sleep Duration,Resting Heart Rate Score
 3,0,2022-05-18,28,5670,-0.06,11.75,51.8,46,96,27330,6270,15390,98
 4,0,2022-05-19,21,2910,0.01,12.125,53.76,48,97,25710,6870,15930,67
 5,0,2022-05-20,32,2730,-0.12,12.125,51.92,47,89,27300,5460,19110,91

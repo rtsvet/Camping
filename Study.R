@@ -8,6 +8,7 @@ library("ggplot2")
 library("GGally")
 library(multcomp)
 
+
 ########################
 # the histograms
 ########################
@@ -16,7 +17,6 @@ hist(dat$Total.Sleep.Duration)
 hist(dat$Deep.Sleep.Duration)
 hist(dat$REM.Sleep.Duration)
 hist(dat$Light.Sleep.Duration)
-
 hist(dat$Average.HRV)
 hist(dat$Average.Resting.Heart.Rate)
 hist(dat$Lowest.Resting.Heart.Rate)
@@ -35,7 +35,6 @@ boxplot(dat$REM.Sleep.Duration ~ dat$Camping, xlab = "Camping",
         ylab = "REM.Sleep.Duration")
 boxplot(dat$Light.Sleep.Duration ~ dat$Camping, xlab = "Camping",
         ylab = "Light.Sleep.Duration")
-
 boxplot(dat$Average.HRV ~ dat$Camping, xlab = "Camping",
         ylab = "Average.HRV")
 boxplot(dat$Average.Resting.Heart.Rate ~ dat$Camping, xlab = "Camping",
@@ -45,14 +44,44 @@ boxplot(dat$Lowest.Resting.Heart.Rate ~ dat$Camping, xlab = "Camping",
 boxplot(dat$Temperature.Deviation ~ dat$Camping, xlab = "Camping",
         ylab = "Temperature.Deviation")
 
+###################
+## Correlations
+###################
 
-#####################
+sleep <- dat[c(4,8,6,9,10,11,5, 12,13)]
+summary(sleep)
+ggpairs(sleep)
+
+
+############################################
 # HRV Model
-
+################################
 hrv_aov <- aov(Average.HRV ~ Camping, data = dat)
 summary(hrv_aov)
 report(hrv_aov)
+report(t)
+tt <- t.test(dat%>%filter(Camping==1)%>%pull(var = "Average.HRV"), 
+            dat%>%filter(Camping==0)%>%pull(var = "Average.HRV"))
+report(tt)
 
+# adding a blocking variable Week of the day
+hrv_aov <- aov(Average.HRV ~ factor(Camping)*factor(Weekday), data = dat)
+summary(hrv_aov)
+report(hrv_aov)
+
+## https://www.scribbr.com/statistics/akaike-information-criterion/ 
+## also https://rpubs.com/mikhilesh/645015
+
+# try Ch square because the sample is realyl small
+dat$Hrv.Increase <-as.factor(ifelse(dat$Average.HRV > mean(dat$Average.HRV), "inc", "dec"))
+
+table <-  table(as.factor(dat$Camping), dat$Hrv.Increase)
+names(dimnames(table)) <- c("Camping", "HRV")
+table
+#chisq.test(table)
+fisher.test(table)
+
+##############################################
 # Av RHR
 avrhr_aov <- aov(Average.Resting.Heart.Rate ~ Camping, data = dat)
 report(avrhr_aov)
@@ -60,10 +89,6 @@ report(avrhr_aov)
 # lowest RHR
 lorhr_aov <- aov(Lowest.Resting.Heart.Rate ~ Camping, data = dat)
 report(lorhr_aov)
-
-# lowest Deep Sleep
-dsd_aov <- aov(Lowest.Resting.Heart.Rate ~ Camping, data = dat)
-report(dsd_aov)
 
 #  REM Sleep
 aov <- aov(Lowest.Resting.Heart.Rate ~ Camping, data = dat)
@@ -78,7 +103,29 @@ aov <- aov(Light.Sleep.Duration ~ Camping, data = dat)
 report(aov)
 
 
+# Temperature Deviation
+aov <- aov(Temperature.Deviation ~ Camping, data = dat)
+report(aov)
+tt <- t.test(dat%>%filter(Camping==1)%>%pull(var = "Temperature.Deviation"), 
+       dat%>%filter(Camping==0)%>%pull(var = "Temperature.Deviation"))
+report(tt)
 
+######
+# Factor Analysis is this inly temperature?
+###########
+par(mfrow=c(1,1))
 
+library(FactoMineR)
+library(psych)
+library(GPArotation)
+
+result <- PCA(sleep) # graphs generated automatically
+
+# Determine Number of Factors to Extract
+library(nFactors)
+ev <- eigen(cor(sleep)) # get eigenvalues
+ap <- parallel(subject=nrow(sleep),var=ncol(sleep), rep=100,cent=.05)
+nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+plotnScree(nS)
 
 

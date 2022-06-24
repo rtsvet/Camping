@@ -110,7 +110,7 @@ tt <- t.test(dat%>%filter(Camping==1)%>%pull(var = "Temperature.Deviation"),
        dat%>%filter(Camping==0)%>%pull(var = "Temperature.Deviation"))
 report(tt)
 
-######
+########################################################################
 # Factor Analysis is this inly temperature?
 ###########
 par(mfrow=c(1,1))
@@ -118,14 +118,18 @@ par(mfrow=c(1,1))
 library(FactoMineR)
 library(psych)
 library(GPArotation)
+library(REdaS)
 
-result <- PCA(sleep) # graphs generated automatically
+bart_spher(sleep)
+KMO(sleep) # ashould be more than 0.7 here is LESS :(
+KMO(sleep[c(1,2,3,4,7)]) # ashould be more than 0.7 
 
-# Determine Number of Factors to Extract
-library(nFactors)
-ev <- eigen(cor(sleep)) # get eigenvalues
-ap <- parallel(subject=nrow(sleep),var=ncol(sleep), rep=100,cent=.05)
-nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
-plotnScree(nS)
+sleep <- sleep[c(1,2,3,4,7)]
 
+fa(sleep, nfactors = 3, rotate = "oblimin")
+fa(sleep, nfactors = 2, rotate = "oblimin")
+
+FactAnal <- fa(sleep, nfactors = 2, rotate = "oblimin") 
+
+fa.diagram(FactAnal, main = sleep)
 

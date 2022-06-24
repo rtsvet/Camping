@@ -8,6 +8,18 @@ library("ggplot2")
 library("GGally")
 library(multcomp)
 
+sumTible <- summarize(groupedDat,
+          mean.RHR = mean(Average.Resting.Heart.Rate),
+          sd.RHR = sd(Average.Resting.Heart.Rate),
+          mean.Tem.Dev = mean(Temperature.Deviation),
+          sd.Tem.Dev = sd(Temperature.Deviation), 
+          mean.RR = mean(Respiratory.Rate),
+          sd.RR = sd(Respiratory.Rate),
+          mean.HRV = mean(Average.HRV),
+          sd.HRV = sd(Average.HRV),
+          mean.DeepSleep = mean(Deep.Sleep.Duration),
+          sd.DeepSleep = sd(Deep.Sleep.Duration))
+
 
 ########################
 # the histograms
@@ -121,15 +133,18 @@ library(GPArotation)
 library(REdaS)
 
 bart_spher(sleep)
-KMO(sleep) # ashould be more than 0.7 here is LESS :(
-KMO(sleep[c(1,2,3,4,7)]) # ashould be more than 0.7 
+KMO(sleep) # ashould be more than 0.7 but here is LESS :(
+KMO(sleep[c(1,2,3,4,7, 8)]) # ashould be more than 0.7
 
-sleep <- sleep[c(1,2,3,4,7)]
+# rearanging
+sleep <- sleep[c(1,2,3,4,7, 8)]
+bart_spher(sleep)
 
 fa(sleep, nfactors = 3, rotate = "oblimin")
 fa(sleep, nfactors = 2, rotate = "oblimin")
 
 FactAnal <- fa(sleep, nfactors = 2, rotate = "oblimin") 
 
-fa.diagram(FactAnal, main = sleep)
+fa.diagram(FactAnal, simple = TRUE)
 
+FactAnal

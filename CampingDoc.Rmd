@@ -1,0 +1,121 @@
+---
+title: "Camping Sleep Study"
+author: "Radoslav Tsvetkov"
+date: '2022-06-24'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Analisis of the influence of the camping on the sleep patterns.
+
+## The Data 
+
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+dat <- read.csv("~/RProjects/Camping/oura_2022-05-18_2022-06-22.csv")
+library(report)
+library(dplyr)
+library("ggplot2")
+library("GGally")
+
+groupedDat <- group_by(dat, Camping)
+
+summarize(groupedDat,
+          mean.RHR = mean(Average.Resting.Heart.Rate),
+          sd.RHR = sd(Average.Resting.Heart.Rate),
+          mean.Tem.Dev = mean(Temperature.Deviation),
+          sd.Tem.Dev = sd(Temperature.Deviation), 
+          mean.RR = mean(Respiratory.Rate),
+          sd.RR = sd(Respiratory.Rate),
+          mean.HRV = mean(Average.HRV),
+          sd.HRV = sd(Average.HRV),
+          mean.DeepSleep = mean(Deep.Sleep.Duration),
+          sd.DeepSleep = sd(Deep.Sleep.Duration))
+```
+
+## The histograms
+
+```{r, echo=FALSE}
+par(mfrow=c(2,4))
+hist(dat$Total.Sleep.Duration, main = "")
+hist(dat$Deep.Sleep.Duration, main = "")
+hist(dat$REM.Sleep.Duration, main = "")
+hist(dat$Light.Sleep.Duration, main = "")
+hist(dat$Average.HRV, main = "")
+hist(dat$Average.Resting.Heart.Rate, main = "")
+hist(dat$Lowest.Resting.Heart.Rate, main = "")
+hist(dat$Temperature.Deviation, main = "")
+```
+
+## The boxplots
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+par(mfrow=c(2,4))
+
+boxplot(dat$Total.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+        ylab = "Total.Sleep.Duration")
+boxplot(dat$Deep.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+        ylab = "Deep Sleep Duratione")
+boxplot(dat$REM.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+        ylab = "REM.Sleep.Duration")
+boxplot(dat$Light.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+        ylab = "Light.Sleep.Duration")
+boxplot(dat$Average.HRV ~ dat$Camping, xlab = "Camping",
+        ylab = "Average.HRV")
+boxplot(dat$Average.Resting.Heart.Rate ~ dat$Camping, xlab = "Camping",
+        ylab = "Average.Resting.Heart.Rate")
+boxplot(dat$Lowest.Resting.Heart.Rate ~ dat$Camping, xlab = "Camping",
+        ylab = "Lowest Resting Heart Rate")
+boxplot(dat$Temperature.Deviation ~ dat$Camping, xlab = "Camping",
+        ylab = "Temperature.Deviation")
+```
+
+## The boxplots
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+
+sleep <- dat[c(4,8,6,9,10,11,5, 12,13)]
+summary(sleep)
+ggpairs(sleep)
+```
+
+## Fisher Test  because the sample is realyl small
+
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+library(FactoMineR)
+library(psych)
+library(GPArotation)
+library(REdaS)
+
+par(mfrow=c(1,1))
+
+
+dat$Hrv.Increase <-as.factor(ifelse(dat$Average.HRV > mean(dat$Average.HRV), "inc", "dec"))
+
+table <-  table(as.factor(dat$Camping), dat$Hrv.Increase)
+names(dimnames(table)) <- c("Camping", "HRV")
+table
+#chisq.test(table)
+fisher.test(table)
+```
+
+## Factor Analysis
+
+KMO should be more then .7
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+sleep <- sleep[c(1,2,3,4,7, 8)]
+bart_spher(sleep)
+KMO(sleep) # ashould be more than 0.7 here is LESS :(
+
+fa(sleep, nfactors = 2, rotate = "oblimin")
+
+FactAnal <- fa(sleep, nfactors = 2, rotate = "oblimin") 
+
+fa.diagram(FactAnal,  simple = TRUE, errors = TRUE)
+psaDiagr <- PCA(sleep)
+
+FactAnal
+
+```

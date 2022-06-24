@@ -13,6 +13,8 @@ Analisis of the influence of the camping on the sleep patterns.
 
 ## The Data 
 
+* 0 - Not Camping
+* 1 - Camping
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -35,6 +37,13 @@ summarize(groupedDat,
           sd.HRV = sd(Average.HRV),
           mean.DeepSleep = mean(Deep.Sleep.Duration),
           sd.DeepSleep = sd(Deep.Sleep.Duration))
+
+summarize(groupedDat,
+          mean.DeepSleep = mean(Deep.Sleep.Duration),
+          sd.DeepSleep = sd(Deep.Sleep.Duration),
+          mean.REM.Sleep = mean(REM.Sleep.Duration),
+          sd.REM.Sleep = sd(REM.Sleep.Duration))
+
 ```
 
 ## The histograms
@@ -73,11 +82,9 @@ boxplot(dat$Temperature.Deviation ~ dat$Camping, xlab = "Camping",
         ylab = "Temperature.Deviation")
 ```
 
-## The boxplots
+## The Correlations
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
-
 sleep <- dat[c(4,8,6,9,10,11,5, 12,13)]
-summary(sleep)
 ggpairs(sleep)
 ```
 

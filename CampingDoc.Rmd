@@ -13,9 +13,6 @@ Analisis of the influence of the camping on the sleep patterns.
 
 ## The Data 
 
-* 0 - Not Camping
-* 1 - Camping
-
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 dat <- read.csv("~/RProjects/Camping/oura_2022-05-18_2022-06-22.csv")
@@ -61,6 +58,10 @@ hist(dat$Temperature.Deviation, main = "")
 ```
 
 ## The boxplots
+
+* 0 - Not Camping
+* 1 - Camping
+
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
 par(mfrow=c(2,4))
 
@@ -86,6 +87,22 @@ boxplot(dat$Temperature.Deviation ~ dat$Camping, xlab = "Camping",
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
 sleep <- dat[c(4,8,6,9,10,11,5, 12,13)]
 ggpairs(sleep)
+```
+
+## Playing with  ANOVA
+
+### Simple ANOVA
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+# adding a blocking variable Week of the day
+hrv_aov <- aov(Average.HRV ~ factor(Camping), data = dat)
+report(hrv_aov)
+```
+
+### adding a blocking variable Week of the day
+
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+hrv_aov <- aov(Average.HRV ~ factor(Camping)*factor(Weekday), data = dat)
+report(hrv_aov)
 ```
 
 ## Fisher Test  because the sample is realyl small

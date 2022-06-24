@@ -140,8 +140,10 @@ KMO(sleep[c(1,2,3,4,7, 8)]) # ashould be more than 0.7
 sleep <- sleep[c(1,2,3,4,7, 8)]
 bart_spher(sleep)
 
+
 fa(sleep, nfactors = 3, rotate = "oblimin")
 fa(sleep, nfactors = 2, rotate = "oblimin")
+
 
 FactAnal <- fa(sleep, nfactors = 2, rotate = "oblimin") 
 

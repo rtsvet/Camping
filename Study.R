@@ -166,10 +166,13 @@ dat$tss.Increase <- as.factor( ifelse(dat$Total.Sleep > mean(dat$Total.Sleep), "
 aov <- aov(Deep.Sleep ~ Camping * tss.Increase, data = dat)
 report(aov)
 
+
 ########################################################################
-########################################################################
+#
 # Factor Analysis is this inly temperature?
-###########
+#
+########################################################################
+
 par(mfrow=c(1,1))
 
 library(FactoMineR)
@@ -205,9 +208,56 @@ FactAnal
 psaDiagr <- PCA(sl)
 
 ##### Different approach
+# https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/factor-analysis/A-simple-example-of-FA/index.html#:~:text=In%20the%20R%20software%20factor,specified%20by%20the%20argument%20factors%20.
 
 faca <- factanal(sl, factors = 2)
 faca$uniquenesses
 faca
+# The last section of the function output shows the results of a hypothesis test.
+# The null hypothesis, H0, is that the number of factors in the model (here 2),
+# is sufficient to capture the full dimensionality of the data set.
 
+Lambda <- faca$loadings
+Psi <- diag(faca$uniquenesses)
+S <- faca$correlation
+Sigma <- Lambda %*% t(Lambda) + Psi
+
+round(S - Sigma, 6)
+
+faca.none <- factanal(sl, factors = 2, rotation = "none")
+faca.varimax <- factanal(sl, factors = 2, rotation = "varimax")
+faca.promax <- factanal(sl, factors = 2, rotation = "promax")
+
+par(mfrow = c(1,3))
+plot(faca.none$loadings[,1], 
+     faca.none$loadings[,2],
+     xlab = "Factor 1", 
+     ylab = "Factor 2", 
+     ylim = c(-1,1),
+     xlim = c(-1,1),
+     main = "No rotation")
+abline(h = 0, v = 0)
+
+plot(faca.varimax$loadings[,1], 
+     faca.varimax$loadings[,2],
+     xlab = "Factor 1", 
+     ylab = "Factor 2", 
+     ylim = c(-1,1),
+     xlim = c(-1,1),
+     main = "Varimax rotation")
+
+text(faca.varimax$loadings[,1]-0.08, 
+     faca.varimax$loadings[,2]+0.08,
+     colnames(food),
+     col="blue")
+abline(h = 0, v = 0)
+
+plot(faca.promax$loadings[,1], 
+     faca.promax$loadings[,2],
+     xlab = "Factor 1", 
+     ylab = "Factor 2",
+     ylim = c(-1,1),
+     xlim = c(-1,1),
+     main = "Promax rotation")
+abline(h = 0, v = 0)
 

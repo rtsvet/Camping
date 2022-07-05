@@ -24,22 +24,24 @@ library("GGally")
 groupedDat <- group_by(dat, Camping)
 
 summarize(groupedDat,
-          mean.RHR = mean(Average.Resting.Heart.Rate),
-          sd.RHR = sd(Average.Resting.Heart.Rate),
-          mean.Tem.Dev = mean(Temperature.Deviation),
-          sd.Tem.Dev = sd(Temperature.Deviation), 
-          mean.RR = mean(Respiratory.Rate),
-          sd.RR = sd(Respiratory.Rate),
-          mean.HRV = mean(Average.HRV),
-          sd.HRV = sd(Average.HRV),
-          mean.DeepSleep = mean(Deep.Sleep.Duration),
-          sd.DeepSleep = sd(Deep.Sleep.Duration))
+          mean.RHR = mean(Av.RHR),
+          sd.RHR = sd(Av.RHR),
+          mean.Tem.Dev = mean(Temp.Deviation),
+          sd.Tem.Dev = sd(Temp.Deviation), 
+          mean.RR = mean(RR),
+          sd.RR = sd(RR),
+          mean.HRV = mean(Av.HRV),
+          sd.HRV = sd(Av.HRV),
+          mean.DeepSleep = mean(Deep.Sleep),
+          sd.DeepSleep = sd(Deep.Sleep))
 
 summarize(groupedDat,
-          mean.DeepSleep = mean(Deep.Sleep.Duration),
-          sd.DeepSleep = sd(Deep.Sleep.Duration),
-          mean.REM.Sleep = mean(REM.Sleep.Duration),
-          sd.REM.Sleep = sd(REM.Sleep.Duration))
+          mean.DeepSleep = mean(Deep.Sleep),
+          sd.DeepSleep = sd(Deep.Sleep),
+          mean.REM.Sleep = mean(REM.Sleep),
+          sd.REM.Sleep = sd(REM.Sleep),
+          mean.Restfulness = mean(Restfulness),
+          sd = sd(Restfulness))
 
 ```
 
@@ -47,14 +49,14 @@ summarize(groupedDat,
 
 ```{r, echo=FALSE}
 par(mfrow=c(2,4))
-hist(dat$Total.Sleep.Duration, main = "")
-hist(dat$Deep.Sleep.Duration, main = "")
-hist(dat$REM.Sleep.Duration, main = "")
-hist(dat$Light.Sleep.Duration, main = "")
-hist(dat$Average.HRV, main = "")
-hist(dat$Average.Resting.Heart.Rate, main = "")
-hist(dat$Lowest.Resting.Heart.Rate, main = "")
-hist(dat$Temperature.Deviation, main = "")
+hist(dat$Total.Sleep, main = "")
+hist(dat$Deep.Sleep, main = "")
+hist(dat$REM.Sleep, main = "")
+hist(dat$Light.Sleep, main = "")
+hist(dat$Av.HRV, main = "")
+hist(dat$Av.RHR, main = "")
+hist(dat$Lo.RHR, main = "")
+hist(dat$Temp.Deviation, main = "")
 ```
 
 ## The boxplots
@@ -65,22 +67,22 @@ hist(dat$Temperature.Deviation, main = "")
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
 par(mfrow=c(2,4))
 
-boxplot(dat$Total.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+boxplot(dat$Total.Sleep ~ dat$Camping, xlab = "Camping",
         ylab = "Total.Sleep.Duration")
-boxplot(dat$Deep.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+boxplot(dat$Deep.Sleep ~ dat$Camping, xlab = "Camping",
         ylab = "Deep Sleep Duratione")
-boxplot(dat$REM.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+boxplot(dat$REM.Sleep ~ dat$Camping, xlab = "Camping",
         ylab = "REM.Sleep.Duration")
-boxplot(dat$Light.Sleep.Duration ~ dat$Camping, xlab = "Camping",
+boxplot(dat$Light.Sleep ~ dat$Camping, xlab = "Camping",
         ylab = "Light.Sleep.Duration")
-boxplot(dat$Average.HRV ~ dat$Camping, xlab = "Camping",
-        ylab = "Average.HRV")
-boxplot(dat$Average.Resting.Heart.Rate ~ dat$Camping, xlab = "Camping",
+boxplot(dat$Av.HRV ~ dat$Camping, xlab = "Camping",
+        ylab = "Average HRV")
+boxplot(dat$Av.RHR ~ dat$Camping, xlab = "Camping",
         ylab = "Average.Resting.Heart.Rate")
-boxplot(dat$Lowest.Resting.Heart.Rate ~ dat$Camping, xlab = "Camping",
+boxplot(dat$Lo.RHR ~ dat$Camping, xlab = "Camping",
         ylab = "Lowest Resting Heart Rate")
-boxplot(dat$Temperature.Deviation ~ dat$Camping, xlab = "Camping",
-        ylab = "Temperature.Deviation")
+boxplot(dat$Temp.Deviation ~ dat$Camping, xlab = "Camping",
+        ylab = "Temperature Deviation")
 ```
 
 ## The Correlations
@@ -94,14 +96,14 @@ ggpairs(sleep)
 ### Simple ANOVA
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
 # adding a blocking variable Week of the day
-hrv_aov <- aov(Average.HRV ~ factor(Camping), data = dat)
+hrv_aov <- aov(Av.HRV ~ factor(Camping), data = dat)
 report(hrv_aov)
 ```
 
 ### adding a blocking variable Week of the day
 
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
-hrv_aov <- aov(Average.HRV ~ factor(Camping)*factor(Weekday), data = dat)
+hrv_aov <- aov(Av.HRV ~ factor(Camping)*factor(Weekday), data = dat)
 report(hrv_aov)
 ```
 
@@ -116,7 +118,7 @@ library(REdaS)
 par(mfrow=c(1,1))
 
 
-dat$Hrv.Increase <-as.factor(ifelse(dat$Average.HRV > mean(dat$Average.HRV), "inc", "dec"))
+dat$Hrv.Increase <-as.factor(ifelse(dat$Av.HRV > mean(dat$Av.HRV), "inc", "dec"))
 
 table <-  table(as.factor(dat$Camping), dat$Hrv.Increase)
 names(dimnames(table)) <- c("Camping", "HRV")
@@ -129,7 +131,7 @@ fisher.test(table)
 
 KMO should be more then .7
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
-sleep <- sleep[c(1,2,3,4,7, 8)]
+sleep <- sleep[c(1,2,3,4,5, 7, 8)]
 bart_spher(sleep)
 KMO(sleep) # ashould be more than 0.7 here is LESS :(
 

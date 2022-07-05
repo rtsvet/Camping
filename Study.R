@@ -68,7 +68,7 @@ boxplot(dat$Temp.Deviation ~ dat$Camping, xlab = "Camping",
 ## Correlations
 ###################
 
-sleep <- dat[c(4,8,6,9,10,11,5, 12,13)]
+sleep <- dat[c(4,8,6,7,9,10,11,5, 12,13)]
 summary(sleep)
 ggpairs(sleep)
 
@@ -137,7 +137,7 @@ aov <- aov(Deep.Sleep ~ Camping, data = dat)
 report(aov)
 
 
-dat$Deep.Sleep.Increase <-as.factor(ifelse(dat$Deep.Sleep > mean(dat$Deep.Sleep), "lo", "hi"))
+dat$Deep.Sleep.Increase <-as.factor(ifelse(dat$Deep.Sleep >= mean(dat$Deep.Sleep), "hi", "lo"))
 
 table <-  table(as.factor(dat$Camping), dat$Deep.Sleep.Increase)
 names(dimnames(table)) <- c("Camping", "Deep.Sleep")
@@ -145,8 +145,28 @@ table
 chisq.test(table)
 fisher.test(table)
 
+# define a ratio - deep sleep score = dss
+dat$dss <- dat$Deep.Sleep/dat$Total.Sleep
+aov <- aov(dss ~ Camping, data = dat)
+report(aov)
 
+dat$dss.Increase <- as.factor( ifelse(dat$dss > mean(dat$dss), "hi", "lo") )
+                             
+table <-  table(as.factor(dat$Camping), dat$dss.Increase)
+names(dimnames(table)) <- c("Camping", "DS Score incr")
+table
+chisq.test(table)
+fisher.test(table)
 
+# try to remove the influence of the seep duration
+aov <- aov(Deep.Sleep ~ Camping + Total.Sleep, data = dat)
+report(aov)
+
+dat$tss.Increase <- as.factor( ifelse(dat$Total.Sleep > mean(dat$Total.Sleep), "hi", "lo") )
+aov <- aov(Deep.Sleep ~ Camping * tss.Increase, data = dat)
+report(aov)
+
+########################################################################
 ########################################################################
 # Factor Analysis is this inly temperature?
 ###########
@@ -159,24 +179,35 @@ library(REdaS)
 
 bart_spher(sleep)
 KMO(sleep) # should be more than 0.7 but here is LESS :(
-KMO(sleep[c(1,2,3, 5, 7, 8)]) # should be more than 0.7
+KMO(sleep[c(1,2, 3, 7,8)]) # should be more than 0.7
 
 # rearranging
-sleep <- sleep[c(1,2,3,5, 7, 8)]
-bart_spher(sleep)
+sl <- sleep[c(1,2,3, 7, 8)]
+bart_spher(sl)
+KMO(sl)
+
+# Determine Number of Factors to Extract
+library(nFactors)
+cor(sl)
+ev <- eigen(cor(sl)) # get eigenvalues
+ap <- parallel(subject=nrow(sl),var=ncol(sl), rep=100,cent=.05)
+nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+plotnScree(nS)
 
 
-fa(sleep, nfactors = 3, rotate = "oblimin")
-fa(sleep, nfactors = 2, rotate = "oblimin")
 
-
-FactAnal <- fa(sleep, nfactors = 2, rotate = "oblimin") 
-
+# Do factor analysis
+FactAnal <- fa(sl, nfactors = 2, rotate = "oblimin") 
 fa.diagram(FactAnal, simple = TRUE)
-
 FactAnal
 
-FactAnal <- fa(sleep, nfactors = 3, rotate = "oblimin") 
 
-fa.diagram(FactAnal,  simple = TRUE, errors = TRUE)
-psaDiagr <- PCA(sleep)
+psaDiagr <- PCA(sl)
+
+##### Different approach
+
+faca <- factanal(sl, factors = 2)
+faca$uniquenesses
+faca
+
+
